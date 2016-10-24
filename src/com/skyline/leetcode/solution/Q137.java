@@ -23,7 +23,7 @@ public class Q137 {
 					cnt++;
 				}
 			}
-		if ((cnt - 1) % 3 == 0) {
+			if (cnt % 3 == 1) {
 				ret += mask;
 			}
 		}
@@ -33,7 +33,7 @@ public class Q137 {
 	public static void main(String[] args) {
 		Q137 q = new Q137();
 
-		int[] nums = {1 };
+		int[] nums = { 1 };
 		System.out.println(q.singleNumber(nums));
 
 	}

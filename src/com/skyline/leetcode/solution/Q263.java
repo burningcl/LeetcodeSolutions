@@ -1,38 +1,38 @@
 package com.skyline.leetcode.solution;
 
 /**
- * Lowest Common Ancestor of a Binary Tree
- * 
- * https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+ * https://leetcode.com/problemset/algorithms/
  * 
  * @author jairus
  *
  */
 public class Q263 {
-
-	public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-		if (root == null) {
-			return null;
-		} else if (root == p || root == q) {
-			return root;
+	public boolean isUgly(int num) {
+		if (num <= 0) {
+			return false;
 		}
-		TreeNode left = lowestCommonAncestor(root.left, p, q);
-		if (left != null && left != p && left != q) {
-			return left;
+		int[] array = { 2, 3, 5 };
+		while (num > 1) {
+			boolean flag = false;
+			for (int i : array) {
+				if (num % i == 0) {
+					num /= i;
+					flag = true;
+				}
+			}
+			if (!flag) {
+				return false;
+			}
 		}
-		TreeNode right = lowestCommonAncestor(root.right, p, q);
-		if (left != null && right != null) {
-			return root;
-		} else if (left != null) {
-			return left;
-		} else {
-			return right;
-		}
+		return true;
 	}
 
 	public static void main(String... strings) {
 		Q263 q = new Q263();
-		System.out.println(q.lowestCommonAncestor(null, null, null));
+		System.out.println(q.isUgly(2));
+		System.out.println(q.isUgly(6));
+		System.out.println(q.isUgly(30));
+		System.out.println(q.isUgly(120));
+		System.out.println(q.isUgly(99));
 	}
-
 }

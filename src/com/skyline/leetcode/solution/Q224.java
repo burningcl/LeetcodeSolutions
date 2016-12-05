@@ -1,7 +1,5 @@
 package com.skyline.leetcode.solution;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -66,7 +64,7 @@ public class Q224 {
 		System.out.println(q.calculate("(1+(4+5+2)-3)+(6+8)") == 23);
 		System.out.println(q.calculate("(1+(4+5+2)-3)-(6+8)") == -5);
 		System.out.println(q.calculate("(1+(4+5+2)-3)+(6-8)") == 7);
-		System.out.println(q.calculate("(1+(4+5+2)-3)+(6-(8-9))")==16);
+		System.out.println(q.calculate("(1+(4+5+2)-3)+(6-(8-9))") == 16);
 		System.out.println(q.calculate("5  "));
 	}
 

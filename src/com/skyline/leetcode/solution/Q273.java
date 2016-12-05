@@ -11,7 +11,7 @@ package com.skyline.leetcode.solution;
 public class Q273 {
 
 	static final String[] ARRAY_SMALL_THAN_20 = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-			"Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventen", "Eighteen", "Nineteen" };
+			"Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
 
 	static final String[] ARRAY_DECADE = { "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
 

@@ -2,10 +2,9 @@ package com.skyline.leetcode.solution;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * LFUCache
+ * LFU Cache
  * 
  * https://leetcode.com/problems/lfu-cache/
  * 
@@ -14,141 +13,225 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Q460 {
 
-	public class LFUCache {
+	public static class LFUCache {
 
-		class ListNode<T> {
-			T data;
-			ListNode<T> pre;
-			ListNode<T> next;
-		}
+		/**
+		 * Entry is the Node of DoubleLinkedList
+		 * 
+		 * @param <T>
+		 */
+		public class Entry<T> {
 
-		class Data {
-			int level;
-			int key;
-			int value;
-		}
+			public T data;
 
-		class LevelData {
-			int level;
-			ListNode<Data> first;
-			ListNode<Data> last;
-		}
+			public Entry<T> pre;
 
-		class MyList<T> {
-			ListNode<T> head;
-			ListNode<T> tail;
+			public Entry<T> next;
 
-			public void del(ListNode<T> node) {
-
+			public Entry(T data) {
+				this.data = data;
 			}
 
-			public void addAfter(ListNode<T> after, ListNode<T> node) {
+		}
 
+		public class MyList<T> {
+
+			public Entry<T> head;
+
+			public Entry<T> tail;
+
+			public MyList() {
+				head = new Entry<>(null);
+				tail = new Entry<>(null);
+				head.next = tail;
+				tail.pre = head;
 			}
 
-			public boolean isTail(ListNode<T> node) {
-				return false;
+			public boolean isEmpty() {
+				return head.next == tail;
 			}
 
-			public boolean isHead(ListNode<T> node) {
-				return false;
+			public Entry<T> addBefore(T data, Entry<T> nextEntry) {
+				if (nextEntry == null || nextEntry == head) {
+					return null;
+				}
+				Entry<T> dataEntry = new Entry<>(data);
+				Entry<T> preEntry = nextEntry.pre;
+				dataEntry.pre = preEntry;
+				dataEntry.next = nextEntry;
+				preEntry.next = dataEntry;
+				nextEntry.pre = dataEntry;
+				return dataEntry;
+			}
+
+			public void remove(Entry<T> entry) {
+				if (entry == null || entry == head || entry == tail) {
+					return;
+				}
+				Entry<T> pre = entry.pre;
+				Entry<T> next = entry.next;
+				pre.next = next;
+				next.pre = pre;
+				entry.pre = null;
+				entry.next = null;
+			}
+			
+		}
+
+		public static final int IDX_KEY = 0;
+
+		public static final int IDX_VAL = 1;
+
+		/**
+		 * 
+		 */
+		public class BaseCache {
+
+			/**
+			 * visit count
+			 */
+			public int vCnt;
+
+			public MyList<int[]> list;
+
+			public Map<Integer, Entry<int[]>> map;
+
+			public BaseCache() {
+				list = new MyList<>();
+				map = new HashMap<>();
+			}
+
+			public int size() {
+				return map.size();
+			}
+
+			public Entry<int[]> get(int key) {
+				return map.get(key);
+			}
+
+			public void set(int key, int value) {
+				int[] data = new int[2];
+				data[IDX_KEY] = key;
+				data[IDX_VAL] = value;
+				Entry<int[]> entry = list.addBefore(data, list.tail);
+				map.put(key, entry);
+			}
+
+			public void remove(int key) {
+				Entry<int[]> entry = this.get(key);
+				if (entry == null) {
+					return;
+				}
+				map.remove(key);
+				list.remove(entry);
 			}
 		}
 
-		int capacity;
+		public MyList<BaseCache> list;
 
-		MyList<Data> dataList;
+		public Map<Integer, Entry<BaseCache>> map;
 
-		MyList<LevelData> levelList;
+		public int capacity;
 
-		Map<Integer, ListNode<Data>> dataMap;
-
-		Map<Integer, ListNode<LevelData>> levelMap;
+		public int cnt;
 
 		public LFUCache(int capacity) {
+			this.list = new MyList<>();
+			this.list.head.data = new BaseCache();
+			this.list.head.data.vCnt = Integer.MIN_VALUE;
+			this.list.tail.data = new BaseCache();
+			this.list.tail.data.vCnt = Integer.MAX_VALUE;
+			this.map = new HashMap<>();
 			this.capacity = capacity;
-			dataList = new MyList<>();
-			levelList = new MyList<>();
-			dataMap = new HashMap<>();
-			levelMap = new HashMap<>();
 		}
 
 		public int get(int key) {
-			ListNode<Data> listNode = dataMap.get(key);
-			if (listNode == null) {
+			Entry<BaseCache> cacheEntry = map.get(key);
+			if (cacheEntry == null) {
 				return -1;
 			}
-			int level = listNode.data.level;
-			ListNode<LevelData> levelNode = levelMap.get(level);
-			ListNode<LevelData> preLevelNode = levelNode;
-			if (levelNode.data.first == listNode) {
-				if (levelNode.data.last == listNode) {
-					preLevelNode = levelNode.pre;
-					levelList.del(levelNode);
-					levelMap.remove(level);
-				} else {
-					levelNode.data.first = listNode.next;
-				}
-			} else if (levelNode.data.last == listNode) {
-				levelNode.data.last = listNode.pre;
+			BaseCache baseCache = cacheEntry.data;
+			Entry<int[]> entry = baseCache.get(key);
+			if (entry == null) {
+				// this is an illegal status
+				return -1;
 			}
-			dataList.del(listNode);
-			listNode.data.level++;
-			level++;
-			levelNode = null;
-			ListNode<LevelData> nextLevelNode = levelMap.get(level);
-			if (nextLevelNode != null && nextLevelNode.data.level == level) {
-				dataList.addAfter(nextLevelNode.data.last, listNode);
-				nextLevelNode.data.last = listNode;
+			int val = entry.data[IDX_VAL];
+			int vCnt = baseCache.vCnt + 1;
+			Entry<BaseCache> nextEntry = cacheEntry.next;
+			Entry<BaseCache> newEntry = null;
+			if (nextEntry.data.vCnt == vCnt) {
+				nextEntry.data.set(key, val);
+				newEntry = nextEntry;
 			} else {
-				dataList.addAfter(preLevelNode.data.last, listNode);
-				levelNode = new ListNode<>();
-				LevelData levelData = new LevelData();
-				levelData.level = level;
-				levelData.first = levelData.last = listNode;
-				levelNode.data = levelData;
-				levelMap.put(level, levelNode);
-				levelList.addAfter(preLevelNode, levelNode);
+				BaseCache newtCache = new BaseCache();
+				newtCache.vCnt = vCnt;
+				newtCache.set(key, val);
+				newEntry = list.addBefore(newtCache, nextEntry);
 			}
-			return listNode.data.value;
-
+			map.put(key, newEntry);
+			cacheEntry.data.remove(key);
+			if (cacheEntry.data.size() <= 0) {
+				list.remove(cacheEntry);
+			}
+			return val;
 		}
 
 		public void set(int key, int value) {
-			ListNode<Data> listNode = dataMap.get(key);
-			if (listNode == null) {
-				listNode = new ListNode<>();
-				Data data = new Data();
-				data.key = key;
-				data.level = 0;
-				data.value = value;
-				listNode.data = data;
-				if (dataMap.size() < capacity) {
-					ListNode<LevelData> levelNode = levelMap.get(0);
-					if (levelNode == null) {
-						levelNode = new ListNode<LevelData>();
-						LevelData levelData = new LevelData();
-						levelData.first = listNode;
-						levelData.last = listNode;
-						levelData.level = 0;
-						levelNode.data = levelData;
-						levelList.addAfter(null, levelNode);
-						levelMap.put(0, levelNode);
-						dataList.addAfter(null, listNode);
-						dataMap.put(key, listNode);
-					} else {
-						dataList.addAfter(levelNode.data.last, listNode);
-						dataMap.put(key, listNode);
-						levelNode.data.last = listNode;
+			if (capacity <= 0) {
+				return;
+			}
+			Entry<BaseCache> valEntry = map.get(key);
+			if (valEntry == null) {
+				if (cnt >= capacity) {
+					Entry<BaseCache> firstCacheEntry = list.head.next;
+					Entry<int[]> firstItemEntry = firstCacheEntry.data.list.head.next;
+					int removeKey = firstItemEntry.data[IDX_KEY];
+					firstCacheEntry.data.remove(removeKey);
+					map.remove(removeKey);
+					if (firstCacheEntry.data.size() <= 0) {
+						list.remove(firstCacheEntry);
 					}
-				} else {
-					
+					cnt--;
 				}
+				Entry<BaseCache> firstCacheEntry = list.head.next;
+				if (firstCacheEntry.data.vCnt == 1) {
+					firstCacheEntry.data.set(key, value);
+					valEntry = firstCacheEntry;
+				} else {
+					BaseCache cache = new BaseCache();
+					cache.vCnt = 1;
+					cache.set(key, value);
+					valEntry = list.addBefore(cache, firstCacheEntry);
+				}
+				map.put(key, valEntry);
+				cnt++;
 			} else {
-
+				int vCnt = valEntry.data.vCnt + 1;
+				valEntry.data.remove(key);
+				Entry<BaseCache> nextEntry = valEntry.next;
+				if (valEntry.data.size() <= 0) {
+					list.remove(valEntry);
+				}
+				if (nextEntry.data.vCnt == vCnt) {
+					nextEntry.data.set(key, value);
+					valEntry = nextEntry;
+				} else {
+					BaseCache cache = new BaseCache();
+					cache.vCnt = vCnt;
+					cache.set(key, value);
+					valEntry = list.addBefore(cache, nextEntry);
+				}
+				map.put(key, valEntry);
 			}
 		}
-
+	}
+	
+	public static void main(String...strings){
+		Q460.LFUCache cache=new 	Q460.LFUCache (2);
+		cache.set(2, 1);
+		System.out.println(cache.list);
+		cache.set(2, 2);
 	}
 
 }

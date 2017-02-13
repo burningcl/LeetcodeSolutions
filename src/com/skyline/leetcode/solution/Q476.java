@@ -1,49 +1,32 @@
 package com.skyline.leetcode.solution;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Number Complement
+ * https://leetcode.com/problems/number-complement/
+ * Created by chenliang on 2017/1/18.
+ */
 public class Q476 {
 
-	// public int totalHammingDistance(int[] nums) {
-	// if (nums == null || nums.length <= 1) {
-	// return 0;
-	// }
-	// int cnt = 0;
-	// int d =0;
-	// for (int i = 0; i < nums.length; i++) {
-	// for (int j = i + 1; j < nums.length; j++) {
-	// d = nums[i]^ nums[j];
-	// while (d != 0) {
-	// cnt++;
-	// d &= d - 1;
-	// }
-	// }
-	// }
-	// return cnt;
-	// }
+    public int findComplement(int num) {
+        if (num < 0) {
+            return (-1) ^ (-num);
+        } else if (num == 0) {
+            return 1;
+        } else {
+            int log = (int) (Math.log(num) / Math.log(2));
+            int mask = (1 << (log + 1)) - 1;
+            return (~num) & mask;
+        }
+    }
 
-	public int totalHammingDistance(int[] nums) {
-		int n = 32;
-		int[] cnts = new int[n];
-		for (int i = 0; i < nums.length; i++) {
-			for (int j = 0; j < n; j++) {
-				cnts[j] += (nums[i] >> j) & 1;
-			}
-		}
-		int sum = 0;
-		for (int cnt : cnts) {
-			sum += cnt * (nums.length - cnt);
-		}
-		return sum;
-	}
-
-	public static void main(String[] args) {
-		 Q476 q=new Q476();
-		 int[]
-		 nums={4,14,2};
-		 System.out.println(nums.length);
-		 System.out.println(q.totalHammingDistance(nums));
-	}
-
+    public static void main(String... str) {
+        Q476 q = new Q476();
+        System.out.println(q.findComplement(5) == 2);
+        System.out.println(q.findComplement(0) == 1);
+        System.out.println(q.findComplement(-5));
+        System.out.println(Integer.toBinaryString(-5));
+        System.out.println(Integer.toBinaryString(-6));
+        System.out.println(Integer.toBinaryString(-1));
+        System.out.println((int) (Math.log(128) / Math.log(2)));
+    }
 }

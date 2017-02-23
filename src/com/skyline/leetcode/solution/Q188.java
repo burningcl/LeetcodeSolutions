@@ -84,35 +84,54 @@ public class Q188 {
     // return dp[0][0];
     // }
 
-//    public int maxProfit(int k, int[] prices) {
-//        if (k <= 0 || prices == null || prices.length <= 0) {
-//            return 0;
-//        }
-//        int[] src = new int[prices.length];
-//        int[] dest = new int[prices.length];
-//        for (int i = 0; i < k; i++) {
-//            int buyIndex = 0;
-//            for (int j = 1; j < prices.length; j++) {
-//                if (prices[i] > prices[buyIndex]) {
-//
-//                } else if (prices[i] < prices[i - 1]) {
-//                    buyIndex = i;
-//                }
-//            }
-//        }
-//    }
-//
-//    public static void main(String[] args) {
-//        Q188 q = new Q188();
-//        int[] prices = {1, 2, 3, 1, 5, 1, 8};
-//        System.out.println(q.maxProfit(2, prices));
-//
-//        int[] p2 = {1, 2, 4, 2, 5, 7, 2, 4, 9, 0};
-//        System.out.println(q.maxProfit(2, p2));
-//
-//        int[] p3 = {1, 2};
-//        System.out.println(q.maxProfit(2, p3));
-//
-//    }
+    public int maxProfit(int k, int[] prices) {
+
+        if (k <= 0 || prices == null || prices.length <= 0) {
+            return 0;
+        }
+
+        int len = prices.length;
+        if (k * 2 > len) {
+            int sum = 0;
+            for (int i = 1; i < len; i++) {
+                int gainLose = prices[i] - prices[i - 1];
+                if (gainLose > 0) {
+                    sum += gainLose;
+                }
+            }
+            return sum;
+        }
+
+        int[][] mustSell = new int[k + 1][len];
+        int[][] dp = new int[k + 1][len];
+        for (int i = 1; i < len; i++) {
+            int gainLose = prices[i] - prices[i - 1];
+            for (int j = 1; j <= k; j++) {
+                mustSell[j][i] = Integer.max(
+                        mustSell[j][i - 1] + gainLose,
+                        dp[j - 1][i - 1] + gainLose
+                );
+                dp[j][i] = Integer.max(
+                        mustSell[j][i], dp[j][i - 1]
+                );
+            }
+        }
+        return dp[k][len - 1];
+    }
+
+    public static void main(String[] args) {
+        Q188 q = new Q188();
+        int[] prices = {1, 2, 3, 1, 5, 1, 8};
+        System.out.println(q.maxProfit(2, prices));
+
+        System.out.println(q.maxProfit(5, prices));
+
+        int[] p2 = {1, 2, 4, 2, 5, 7, 2, 4, 9, 0};
+        System.out.println(q.maxProfit(2, p2));
+
+        int[] p3 = {1, 2};
+        System.out.println(q.maxProfit(2, p3));
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.skyline.leetcode.solution.contest20;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,26 +32,67 @@ public class Q525 {
 //        return maxLen*2;
 //    }
 
+//    public int findMaxLength(int[] nums) {
+//        if (nums == null || nums.length <= 1) {
+//            return 0;
+//        }
+//        int maxLen = 0;
+//        int sum = 0;
+//        Map<Integer, Integer> map = new HashMap<>();
+//        map.put(0, -1);
+//        for (int i = 0; i < nums.length; i++) {
+//            sum += (nums[i] == 0 ? 1 : -1);
+//            if (map.containsKey(sum)) {
+//                int len = i - map.get(sum);
+//                if (len > maxLen) {
+//                    maxLen = len;
+//                }
+//            } else {
+//                map.put(sum, i);
+//            }
+//        }
+//        return maxLen;
+//    }
+
     public int findMaxLength(int[] nums) {
         if (nums == null || nums.length <= 1) {
             return 0;
         }
-        int maxLen = 0;
         int sum = 0;
-        Map<Integer, Integer> map = new HashMap<>();
-        map.put(0, -1);
+        int maxSum = Integer.MIN_VALUE;
+        int minSum = Integer.MAX_VALUE;
         for (int i = 0; i < nums.length; i++) {
             sum += (nums[i] == 0 ? 1 : -1);
-            if (map.containsKey(sum)) {
-                int len = i - map.get(sum);
+            if (sum > maxSum) {
+                maxSum = sum;
+            }
+            if (sum < minSum) {
+                minSum = sum;
+            }
+        }
+        int[] cache = new int[maxSum - minSum + 1];
+        Arrays.fill(cache, -1);
+        sum = 0;
+        int maxLen = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sum += (nums[i] == 0 ? 1 : -1);
+            if (sum == 0) {
+                if (i + 1 > maxLen) {
+                    maxLen = i + 1;
+                }
+                continue;
+            }
+            if (cache[sum - minSum] >= 0) {
+                int len = i - cache[sum - minSum];
                 if (len > maxLen) {
                     maxLen = len;
                 }
             } else {
-                map.put(sum, i);
+                cache[sum - minSum] = i;
             }
         }
         return maxLen;
+
     }
 
     public static void main(String... strings) {

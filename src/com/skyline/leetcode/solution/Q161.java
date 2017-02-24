@@ -1,53 +1,55 @@
 package com.skyline.leetcode.solution;
 
 /**
- * Intersection of Two Linked Lists
- * 
- * https://leetcode.com/problems/intersection-of-two-linked-lists/
- * 
- * @author jairus
- * 
+ * One Edit Distance
+ * https://leetcode.com/problems/one-edit-distance/?tab=Description
+ * Created by chenliang on 2017/2/24.
  */
 public class Q161 {
 
-	private int len(ListNode cur) {
-		int cnt = 0;
-		while (cur != null) {
-			cur = cur.next;
-			cnt++;
-		}
-		return cnt;
-	}
+    public boolean isOneEditDistance(String s, String t) {
+        if (s == null || s.length() <= 0) {
+            return t.length() == 1;
+        } else if (t == null || t.length() <= 0) {
+            return s.length() == 1;
+        } else if (s.equals(t)) {
+            return false;
+        }
+        if (s.length() == t.length()) {
+            return this.isChangeOneChar(s, t);
+        } else if (s.length() + 1 == t.length()) {
+            return this.isAddOneChar(s, t);
+        } else if (s.length() == t.length() + 1) {
+            return this.isAddOneChar(t, s);
+        } else {
+            return false;
+        }
+    }
 
-	public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
-		if (headA == null || headB == null) {
-			return null;
-		}
-		int cntA = len(headA);
-		int cntB = len(headB);
-		ListNode cur = null;
-		int step = 0;
-		if (cntA > cntB) {
-			cur = headA;
-			step = cntA - cntB;
-		} else {
-			cur = headB;
-			step = cntB - cntA;
-		}
-		while (step-- > 0) {
-			cur = cur.next;
-		}
-		ListNode curA=headA;
-		ListNode curB=headB;
-		if (cntA > cntB) {
-			curA=cur;
-		}else{
-			curB=cur;
-		}
-		while(curA!=curB){
-			curA=curA.next;
-			curB=curB.next;
-		}
-		return curA;
-	}
+    private boolean isChangeOneChar(String s, String t) {
+        boolean changed = false;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) != t.charAt(i)) {
+                if (!changed) {
+                    changed = true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isAddOneChar(String s, String t) {
+        int i = 0;
+        for (; i < s.length() && s.charAt(i) == t.charAt(i); i++) {
+        }
+        for (; i < s.length(); i++) {
+            if (s.charAt(i) != t.charAt(i + 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
